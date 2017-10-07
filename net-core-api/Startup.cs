@@ -8,10 +8,14 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Owin;
+using Microsoft.Owin.Security.ActiveDirectory;
+using Microsoft.IdentityModel.Protocols;
+using System.Configuration;
 
 namespace net_core_api
 {
-    public class Startup
+    public partial class Startup
     {
         public Startup(IConfiguration configuration)
         {
@@ -27,14 +31,25 @@ namespace net_core_api
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IAppBuilder app, IHostingEnvironment env, IApplicationBuilder application)
         {
             if (env.IsDevelopment())
             {
-                app.UseDeveloperExceptionPage();
+                application.UseDeveloperExceptionPage();
             }
 
-            app.UseMvc();
+            application.UseMvc();
+            ConfigureAuth(app);
+        }
+
+        public void ConfigureAuth(IAppBuilder app)
+        {
+            app.UseWindowsAzureActiveDirectoryBearerAuthentication(
+                new WindowsAzureActiveDirectoryBearerAuthenticationOptions
+                {
+                    Audience = "https://hockeyman62hotmail.onmicrosoft.com/api-service",
+                    Tenant = "hockeyman62hotmail.onmicrosoft.com"
+                });
         }
     }
 }
